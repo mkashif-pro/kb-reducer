@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1e3a8a">
+    <link rel="apple-touch-icon" href="icon.png">
+    
+    <title>KB Reducer Pro - Resize Images Free</title>
+    <meta name="description" content="Free tool to reduce image size to 20kb, 50kb instantly. Secure & Blue.">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root { 
+            --primary: #2563eb; 
+            --card-bg: #ffffff;
+            --text-dark: #1e293b;
+            --text-light: #ffffff;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            
+            /* === DEEP INTENSITY BLUE (Your favorite background) === */
+            background: linear-gradient(180deg, #1e3a8a 0%, #172554 100%);
+            
+            color: var(--text-light);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .trust-badge {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 8px 20px; border-radius: 30px; font-size: 0.9rem; font-weight: 600;
+            margin-bottom: 10px; backdrop-filter: blur(5px); 
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        h1 { margin: 10px 0; color: white; font-size: 2.4rem; text-shadow: 0 2px 10px rgba(0,0,0,0.3); font-weight: 700;}
+        p.subtitle { color: #bfdbfe; font-size: 1.1rem; margin-bottom: 35px; text-align: center; opacity: 1; }
+
+        .container {
+            background: var(--card-bg); color: var(--text-dark); padding: 2.5rem;
+            border-radius: 24px; 
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+            width: 100%; max-width: 500px; text-align: center; margin-bottom: 50px;
+            animation: popIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        @keyframes popIn {
+            0% { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .upload-box {
+            border: 2px dashed #cbd5e1; padding: 35px; border-radius: 16px; cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* RESTORED ANIMATION */
+            background: #f8fafc; margin-bottom: 25px;
+        }
+        .upload-box:hover { border-color: var(--primary); background: #eff6ff; transform: translateY(-3px); }
+        .upload-icon { font-size: 2.5rem; display: block; margin-bottom: 10px; }
+        
+        .presets { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center;}
+        
+        /* === RESTORED CHIP ANIMATIONS === */
+        .chip {
+            background: #f1f5f9; border: 1px solid #e2e8f0; padding: 10px 16px;
+            border-radius: 10px; font-size: 0.9rem; cursor: pointer; 
+            color: #475569; font-weight: 500;
+            /* The "Bouncy" transition is back! */
+            transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1); 
+        }
+        /* Hover Effect Restored (Lifts up) */
+        .chip:hover { background: #e2e8f0; transform: translateY(-2px); }
+        
+        /* Active State (Pops) */
+        .chip.active { 
+            background: var(--primary); color: white; border-color: var(--primary); 
+            transform: scale(1.05); 
+            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .custom-input-area { background: #f8fafc; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #e2e8f0; }
+        input[type="number"] {
+            padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; width: 90px; text-align: center; font-size: 1.1rem; font-weight: bold; color: var(--primary); outline: none; transition: 0.2s;
+        }
+        input[type="number"]:focus { border-color: var(--primary); transform: scale(1.02); }
+
+        .btn {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border: none; padding: 18px;
+            border-radius: 12px; font-size: 1.1rem; font-weight: 600; cursor: pointer; width: 100%;
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3); 
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* Bouncy Button */
+        }
+        .btn:hover { transform: translateY(-3px) scale(1.01); box-shadow: 0 15px 30px rgba(37, 99, 235, 0.4); }
+        .btn:active { transform: translateY(-1px) scale(0.99); }
+
+        .preview-area { margin-top: 25px; display: none; text-align: left; }
+        .preview-card { background: #fff; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 15px; }
+        .preview-card img { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; }
+        .success-box { display: block; background: #f0fdf4; border: 2px solid #bbf7d0; text-align: center; padding: 20px;}
+        .success-box img { width: 100%; height: auto; max-height: 250px; object-fit: contain; margin-bottom: 15px; }
+        .download-btn {
+            background: #16a34a; color: white; text-decoration: none; padding: 16px; border-radius: 12px; display: block; text-align: center; font-weight: 600; margin-top: 15px;
+            transition: 0.2s;
+        }
+        .download-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(22, 163, 74, 0.3); }
+
+        /* SEO Content */
+        .seo-content { max-width: 650px; margin: 0 auto; text-align: left; color: #ffffff; font-size: 0.95rem; line-height: 1.7; padding-bottom: 40px; }
+        .seo-content h2 { color: #bfdbfe; font-size: 1.3rem; margin-top: 40px; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 10px;}
+        footer { color: #93c5fd; font-size: 0.8rem; text-align: center; margin-bottom: 20px;}
+    </style>
+</head>
+<body>
+
+    <div class="trust-badge">🔒 Secure & Encrypted Processing</div>
+
+    <h1>KB Reducer Pro</h1>
+    <p class="subtitle">The professional way to compress images for free.</p>
+
+    <div class="container">
+        
+        <div class="upload-box" onclick="document.getElementById('fileInput').click()">
+            <span class="upload-icon">📤</span>
+            <span style="font-weight:600; font-size: 1.1rem; color:#334155;">Click to Upload Image</span>
+            <span style="display:block; font-size:0.85rem; color:#94a3b8; margin-top:5px;">Supports JPG, PNG</span>
+            <input type="file" id="fileInput" accept="image/*" style="display:none">
+        </div>
+
+        <div id="originalPreview" class="preview-area">
+            <div class="preview-card">
+                <img id="origImgThumb" src="">
+                <div style="flex:1;">
+                    <span style="display:block; font-weight:700; color:#334155;">Original File</span>
+                    <span style="font-size:0.9rem; color:#64748b;" id="origSize">0 KB</span>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align:left; margin-bottom:10px; font-weight:700; color:#334155;">Quick Select:</div>
+        <div class="presets">
+            <div class="chip" onclick="setPreset(20, this)">Passport (20KB)</div>
+            <div class="chip active" onclick="setPreset(50, this)">Official Form (50KB)</div>
+            <div class="chip" onclick="setPreset(100, this)">Document (100KB)</div>
+        </div>
+
+        <div class="custom-input-area">
+            <label class="custom-label">Or enter custom size (KB):</label>
+            <div style="display:flex; justify-content:center; align-items:center; gap:10px;">
+                <input type="number" id="targetSize" value="50" min="5" max="5000">
+                <span style="font-weight:600; color:#64748b;">KB</span>
+            </div>
+        </div>
+
+        <button class="btn" id="compressBtn">Compress Image Now</button>
+        <p id="statusMsg" style="font-size: 14px; margin-top: 15px; color: #64748b;"></p>
+
+        <div id="resultPreview" class="preview-area">
+            <div class="preview-card success-box">
+                <h3 style="color:#16a34a; margin:0 0 10px 0;">🎉 Compression Complete!</h3>
+                <img id="finalImg" src="">
+                <div style="margin-bottom:10px;">New Size: <b id="finalSize" style="color:#16a34a; font-size:1.2rem;">0 KB</b></div>
+                <a id="downloadLink" class="download-btn" download="compressed.jpg">Download Image</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="seo-content">
+        <h2>How to Use KB Reducer Pro?</h2>
+        <p>1. Upload your photo (JPG/PNG).<br>
+        2. Click "Official Form (50KB)" or enter a custom size.<br>
+        3. Download your optimized image instantly.</p>
+
+        <h2>Why is this tool unique?</h2>
+        <p>Unlike other websites, <strong>KB Reducer Pro</strong> processes images securely on your device. Your photos are never uploaded to a server, ensuring 100% privacy.</p>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 KB Reducer Pro • Made with ❤️ in Pakistan</p>
+    </footer>
+
+    <script>
+        // PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('App Registered!', reg))
+                .catch(err => console.log('Error:', err));
+            });
+        }
+
+        // App Logic
+        const fileInput = document.getElementById('fileInput');
+        const targetSizeInput = document.getElementById('targetSize');
+        const compressBtn = document.getElementById('compressBtn');
+        const statusMsg = document.getElementById('statusMsg');
+        const originalPreview = document.getElementById('originalPreview');
+        const resultPreview = document.getElementById('resultPreview');
+        const origImgThumb = document.getElementById('origImgThumb');
+        const origSize = document.getElementById('origSize');
+        const finalImg = document.getElementById('finalImg');
+        const finalSize = document.getElementById('finalSize');
+        const downloadLink = document.getElementById('downloadLink');
+        let currentFile = null;
+
+        function setPreset(size, el) {
+            targetSizeInput.value = size;
+            document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+        }
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files[0]) {
+                currentFile = e.target.files[0];
+                origImgThumb.src = URL.createObjectURL(currentFile);
+                origSize.innerText = (currentFile.size / 1024).toFixed(1) + " KB";
+                originalPreview.style.display = 'block';
+                resultPreview.style.display = 'none';
+                statusMsg.innerText = "";
+            }
+        });
+
+        compressBtn.addEventListener('click', async () => {
+            if (!currentFile) { alert("Please upload an image first!"); return; }
+            const targetKB = parseInt(targetSizeInput.value);
+            compressBtn.disabled = true; compressBtn.innerText = "Processing...";
+            
+            try {
+                const compressedBlob = await compressToTargetSize(currentFile, targetKB);
+                const url = URL.createObjectURL(compressedBlob);
+                finalImg.src = url;
+                finalSize.innerText = (compressedBlob.size / 1024).toFixed(1) + " KB";
+                downloadLink.href = url;
+                resultPreview.style.display = 'block';
+                resultPreview.scrollIntoView({ behavior: 'smooth' });
+                confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+                statusMsg.innerText = "";
+            } catch (err) { alert("Error: " + err.message); } 
+            finally { compressBtn.disabled = false; compressBtn.innerText = "Compress Image Now"; }
+        });
+
+        async function compressToTargetSize(file, targetKB) {
+            const targetBytes = targetKB * 1024;
+            let minQ = 0.1, maxQ = 1.0, blob = null;
+            const img = await loadImage(file);
+            let w = img.width, h = img.height;
+            for(let i=0; i<10; i++) {
+                let q = (minQ + maxQ) / 2;
+                blob = await getCanvasBlob(img, w, h, q);
+                if (blob.size <= targetBytes) { if(maxQ-minQ < 0.05) break; minQ = q; }
+                else { maxQ = q; }
+            }
+            while (blob.size > targetBytes && w > 100) {
+                w *= 0.9; h *= 0.9;
+                blob = await getCanvasBlob(img, w, h, 0.5);
+            }
+            return blob;
+        }
+
+        function loadImage(file) { return new Promise(r => { const i = new Image(); i.src = URL.createObjectURL(file); i.onload = () => r(i); }); }
+        function getCanvasBlob(img, w, h, q) { return new Promise(r => { const c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(img, 0, 0, w, h); c.toBlob(b => r(b), 'image/jpeg', q); }); }
+    </script>
+</body>
+</html>
